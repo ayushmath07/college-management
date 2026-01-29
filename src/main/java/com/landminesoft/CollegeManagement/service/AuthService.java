@@ -72,7 +72,7 @@ public class AuthService {
             throw new InvalidCredentialsException();
         }
 
-        String token = jwtUtils.generateToken(student.getEmail(), "STUDENT");
+        String token = jwtUtils.generateToken(student.getId(), student.getEmail(), "STUDENT");
 
         return JwtResponseDTO.builder()
                 .token(token)
@@ -118,7 +118,7 @@ public class AuthService {
             throw new InvalidCredentialsException();
         }
 
-        String token = jwtUtils.generateToken(faculty.getEmail(), "FACULTY");
+        String token = jwtUtils.generateToken(faculty.getId(), faculty.getEmail(), "FACULTY");
 
         return JwtResponseDTO.builder()
                 .token(token)
@@ -163,7 +163,7 @@ public class AuthService {
             throw new InvalidCredentialsException();
         }
 
-        String token = jwtUtils.generateToken(admin.getEmail(), admin.getRole());
+        String token = jwtUtils.generateToken(admin.getId(), admin.getEmail(), admin.getRole());
 
         return JwtResponseDTO.builder()
                 .token(token)

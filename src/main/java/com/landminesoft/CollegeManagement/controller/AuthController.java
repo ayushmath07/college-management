@@ -1,13 +1,17 @@
 package com.landminesoft.CollegeManagement.controller;
 
 import com.landminesoft.CollegeManagement.dto.*;
+import com.landminesoft.CollegeManagement.security.CustomUserDetails;
 import com.landminesoft.CollegeManagement.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -71,6 +75,39 @@ public class AuthController {
     public ResponseEntity<JwtResponseDTO> loginAdmin(
             @Valid @RequestBody LoginDTO dto) {
         JwtResponseDTO response = authService.loginAdmin(dto);
+        return ResponseEntity.ok(response);
+    }
+
+    // ==================== PASSWORD RESET ====================
+
+    @PostMapping("/forgot-password")
+    @Operation(summary = "Request password reset link")
+    public ResponseEntity<Map<String, Object>> forgotPassword(
+            @Valid @RequestBody ForgotPasswordDTO dto) {
+        Map<String, Object> response = authService.forgotPassword(dto);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/reset-password")
+    @Operation(summary = "Reset password using token")
+    public ResponseEntity<Map<String, Object>> resetPassword(
+            @Valid @RequestBody ResetPasswordDTO dto) {
+        Map<String, Object> response = authService.resetPassword(dto);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/change-password")
+    @Operation(summary = "Change password (requires authentication)")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<Map<String, Object>> changePassword(
+            @Valid @RequestBody ChangePasswordDTO dto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
+        Map<String, Object> response = authService.changePassword(
+                userDetails.getId(),
+                userDetails.getRole(),
+                dto);
         return ResponseEntity.ok(response);
     }
 }

@@ -33,16 +33,12 @@ public class SecurityConfig {
                                                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                                                 .accessDeniedHandler(customAccessDeniedHandler))
                                 .authorizeHttpRequests(auth -> auth
-                                                // Public endpoints
                                                 .requestMatchers("/api/auth/**").permitAll()
+                                                .requestMatchers("/api/announcements/**").permitAll()
                                                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                                                // Admin only endpoints
                                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                                                // Student endpoints
                                                 .requestMatchers("/api/student/**").hasAnyRole("STUDENT", "ADMIN")
-                                                // Faculty endpoints
                                                 .requestMatchers("/api/faculty/**").hasAnyRole("FACULTY", "ADMIN")
-                                                // All other endpoints require authentication
                                                 .anyRequest().authenticated())
                                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

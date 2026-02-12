@@ -32,19 +32,16 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
 
-    // ==================== STUDENT ====================
-
     @Transactional
     public Map<String, Object> registerStudent(StudentRegisterDTO dto) {
-        // Check if email already exists
+
         if (studentRepository.findByEmail(dto.getEmail()).isPresent()) {
             throw new EmailAlreadyExistsException(dto.getEmail());
         }
 
-        // Generate roll number: BRANCH + YEAR + SEQUENCE
+        // format: CSE2024001
         String rollNumber = generateRollNumber(dto.getBranch(), dto.getEnrollmentYear());
 
-        // Build student entity
         Student student = Student.builder()
                 .name(dto.getName())
                 .email(dto.getEmail())
@@ -85,8 +82,6 @@ public class AuthService {
                 .role("STUDENT")
                 .build();
     }
-
-    // ==================== FACULTY ====================
 
     @Transactional
     public Map<String, Object> registerFaculty(FacultyRegisterDTO dto) {
@@ -132,8 +127,6 @@ public class AuthService {
                 .build();
     }
 
-    // ==================== ADMIN ====================
-
     @Transactional
     public Map<String, Object> registerAdmin(AdminRegisterDTO dto) {
         if (adminRepository.findByEmail(dto.getEmail()).isPresent()) {
@@ -177,22 +170,18 @@ public class AuthService {
                 .build();
     }
 
-    // ==================== HELPERS ====================
-
     private String generateRollNumber(String branch, Integer enrollmentYear) {
-        // Format: BRANCH + YEAR + SEQUENCE (e.g., CSE2024001)
+        // TODO: this will break with concurrent registrations, need proper sequence
         long count = studentRepository.count() + 1;
         return String.format("%s%d%03d", branch.toUpperCase(), enrollmentYear, count);
     }
-
-    // ==================== PASSWORD RESET ====================
 
     @Transactional
     public Map<String, Object> forgotPassword(ForgotPasswordDTO dto) {
         String email = dto.getEmail();
         String userType = null;
 
-        // Check which type of user exists with this email
+        // figure out which entity table has this email
         if (studentRepository.findByEmail(email).isPresent()) {
             userType = "STUDENT";
         } else if (facultyRepository.findByEmail(email).isPresent()) {
@@ -204,10 +193,10 @@ public class AuthService {
         Map<String, Object> response = new HashMap<>();
 
         if (userType != null) {
-            // Generate reset token
+
             String token = java.util.UUID.randomUUID().toString();
 
-            // Save token to database (30 minutes expiry)
+            // 30 min expiry
             PasswordResetToken resetToken = PasswordResetToken.builder()
                     .token(token)
                     .email(email)
@@ -217,7 +206,7 @@ public class AuthService {
 
             passwordResetTokenRepository.save(resetToken);
 
-            // Simulate sending email (log to console)
+            // TODO: replace with actual email service
             System.out.println("===========================================");
             System.out.println("PASSWORD RESET EMAIL SIMULATION");
             System.out.println("To: " + email);
@@ -227,7 +216,7 @@ public class AuthService {
             System.out.println("===========================================");
         }
 
-        // Always return success for security (don't reveal if email exists)
+        // always return success so we don't leak whether email exists
         response.put("message", "If the email exists, a reset link has been sent");
         return response;
     }
@@ -241,7 +230,6 @@ public class AuthService {
             throw new InvalidTokenException("Token has expired or already been used");
         }
 
-        // Find and update user password based on user type
         String newPasswordHash = passwordEncoder.encode(dto.getNewPassword());
 
         switch (resetToken.getUserType()) {
@@ -265,7 +253,6 @@ public class AuthService {
             }
         }
 
-        // Mark token as used
         resetToken.setUsed(true);
         passwordResetTokenRepository.save(resetToken);
 

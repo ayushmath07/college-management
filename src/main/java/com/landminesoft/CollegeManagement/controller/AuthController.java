@@ -24,8 +24,6 @@ public class AuthController {
 
     private final AuthService authService;
 
-    // ==================== STUDENT ====================
-
     @PostMapping("/student/register")
     @Operation(summary = "Register a new student")
     public ResponseEntity<Map<String, Object>> registerStudent(
@@ -41,8 +39,6 @@ public class AuthController {
         JwtResponseDTO response = authService.loginStudent(dto);
         return ResponseEntity.ok(response);
     }
-
-    // ==================== FACULTY ====================
 
     @PostMapping("/faculty/register")
     @Operation(summary = "Register a new faculty member")
@@ -60,8 +56,6 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    // ==================== ADMIN ====================
-
     @PostMapping("/admin/register")
     @Operation(summary = "Register a new admin")
     public ResponseEntity<Map<String, Object>> registerAdmin(
@@ -77,8 +71,6 @@ public class AuthController {
         JwtResponseDTO response = authService.loginAdmin(dto);
         return ResponseEntity.ok(response);
     }
-
-    // ==================== PASSWORD RESET ====================
 
     @PostMapping("/forgot-password")
     @Operation(summary = "Request password reset link")

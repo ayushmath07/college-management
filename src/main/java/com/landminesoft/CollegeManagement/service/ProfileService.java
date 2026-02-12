@@ -20,8 +20,6 @@ public class ProfileService {
     private final StudentRepository studentRepository;
     private final FacultyRepository facultyRepository;
 
-    // ==================== STUDENT PROFILE ====================
-
     public Map<String, Object> getStudentProfile(Long studentId) {
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
@@ -50,7 +48,7 @@ public class ProfileService {
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
-        // Update only non-null fields
+        // partial update
         if (dto.getPhone() != null) {
             student.setPhone(dto.getPhone());
         }
@@ -83,8 +81,6 @@ public class ProfileService {
         return response;
     }
 
-    // ==================== FACULTY PROFILE ====================
-
     public Map<String, Object> getFacultyProfile(Long facultyId) {
         FacultyPersonal faculty = facultyRepository.findById(facultyId)
                 .orElseThrow(() -> new RuntimeException("Faculty not found"));
@@ -109,7 +105,6 @@ public class ProfileService {
         FacultyPersonal faculty = facultyRepository.findById(facultyId)
                 .orElseThrow(() -> new RuntimeException("Faculty not found"));
 
-        // Update only non-null fields
         if (dto.getPhone() != null) {
             faculty.setPhone(dto.getPhone());
         }
